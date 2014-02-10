@@ -10,6 +10,7 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
+    logger.info "個別にユーザーを表示"
   end
 
   # GET /users/new
