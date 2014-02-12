@@ -4,3 +4,12 @@
 
 $(window).load ->
   console.log "オンドゥル語"
+  if $("body").hasClass "users"
+    enchant()
+    if $("body").hasClass "index"
+      game = new Core(640, 480)
+      game.rootScene.backgroundColor = "green"
+      game.onload = ->
+        return
+      game.start()
+
