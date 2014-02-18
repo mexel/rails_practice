@@ -1,0 +1,96 @@
+$(window).load ->
+  if $("body").hasClass "effect"
+    enchant()
+    if $("body").hasClass "diffusion"
+      game = new Core(640, 480)
+      game.fps = 60
+      game.rootScene.backgroundColor = "green"
+      img = ["<%= asset_path("flash.png") %>"]
+      game.preload(img[0])
+      game.onload = ->
+        rot = 0
+        sps = []
+        for num in [0...100]
+          sp = new Sprite(32, 32)
+          sp.x = 308
+          sp.y = 224
+          sp.image = game.assets[img[0]]
+          sp.mx = Math.cos(rot) * 10
+          sp.my = Math.sin(rot) * 10
+          sp.life = num
+          sp.opacity = 0
+          sp.update = ->
+            @life--
+            if this.life <= 0
+              @life = 100
+              @opacity = 1
+              @x = 308
+              @y = 224
+              @mx = Math.cos(rot) * 10
+              @my = Math.sin(rot) * 10
+            if @opacity > 0
+              @opacity -= 0.01
+              @x += @mx
+              @y += @my
+            else
+              @opacity = 0
+
+            return
+          sps.push sp
+        game.rootScene.addChild sp for sp in sps
+
+        game.addEventListener "enterframe", ->
+          rot = Math.random() * 6
+          sp.update() for sp in sps
+          return
+        return
+      game.start()
+    if $("body").hasClass "fire"
+      game = new Core(640, 480)
+      game.fps = 60
+      game.rootScene.backgroundColor = "green"
+      img = ["<%= asset_path("flash2.png") %>"]
+      game.preload(img[0])
+      game.onload = ->
+        sps = []
+        for num in [0...100]
+          sp = new Sprite(32, 32)
+          sp.x = 308
+          sp.y = 304
+          sp.image = game.assets[img[0]]
+          sp.mx = 0
+          sp.my = -3
+          sp.life = num
+          sp.opacity = 0
+          sp.update = ->
+            @life--
+            if this.life <= 0
+              @life = 100
+              @opacity = 1
+              @x = 308
+              @y = 304
+              rot = Math.random() * Math.PI * 0.5 + Math.PI * 0.25
+              @mx = Math.cos(rot) * 10
+              @my = -3
+            if @opacity > 0
+              @opacity -= 0.01
+              if @mx < 1 && @mx > -1
+                @mx += (308 - @x) * 0.005
+              @mx *= 0.9
+              @x += @mx
+              @y += @my
+              if @opacity < 0
+                @opacity = 0
+            else
+              @opacity = 0
+
+            return
+          sps.push sp
+        game.rootScene.addChild sp for sp in sps
+
+        game.addEventListener "enterframe", ->
+          sp.update() for sp in sps
+          return
+        return
+      game.start()
+

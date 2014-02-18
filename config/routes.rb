@@ -1,4 +1,10 @@
 RailsPractice::Application.routes.draw do
+  resources :effect do
+    collection do
+      get :fire
+      get :diffusion
+    end
+  end
   resources :users
 
   # The priority is based upon order of creation: first created -> highest priority.
