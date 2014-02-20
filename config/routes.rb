@@ -3,6 +3,7 @@ RailsPractice::Application.routes.draw do
     collection do
       get :fire
       get :diffusion
+      get :pixel
     end
   end
   resources :users

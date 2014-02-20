@@ -49,7 +49,7 @@ $(window).load ->
       game = new Core(640, 480)
       game.fps = 60
       game.rootScene.backgroundColor = "green"
-      img = ["<%= asset_path("flash2.png") %>"]
+      img = ["<%= asset_path("flash.png") %>"]
       game.preload(img[0])
       game.onload = ->
         sps = []
@@ -57,7 +57,7 @@ $(window).load ->
           sp = new Sprite(32, 32)
           sp.x = 308
           sp.y = 304
-          sp.image = game.assets[img[0]]
+          sp.image = new Surface(32, 32)
           sp.mx = 0
           sp.my = -3
           sp.life = num
@@ -73,6 +73,22 @@ $(window).load ->
               @mx = Math.cos(rot) * 10
               @my = -3
             if @opacity > 0
+              @image.clear()
+              context = @image.context
+              context.drawImage(game.assets[img[0]]._element, 0, 0)
+              iData = context.getImageData(0, 0, 32, 32)
+              srcData = iData.data
+              imageData = context.createImageData(32, 32)
+              data = imageData.data
+              for i in [0...1024]
+                data[i * 4 + 0] = srcData[i * 4 + 0] * (1 - @opacity)
+                data[i * 4 + 1] = srcData[i * 4 + 1] * @opacity / 2 + 128
+                if data[i * 4 + 1] > 255
+                  data[i * 4 + 1] = 255
+                data[i * 4 + 2] = srcData[i * 4 + 2] * @opacity
+                data[i * 4 + 3] = srcData[i * 4 + 3]
+
+              context.putImageData(imageData, 0, 0)
               @opacity -= 0.01
               if @mx < 1 && @mx > -1
                 @mx += (308 - @x) * 0.005
@@ -93,4 +109,58 @@ $(window).load ->
           return
         return
       game.start()
+    if $("body").hasClass "pixel"
+      game = new Core(640, 480)
+      game.fps = 60
+      game.rootScene.backgroundColor = "green"
+      img = ["<%= asset_path("flash.png") %>"]
+      game.preload(img[0])
+      game.onload = ->
+        sp = new Sprite(32, 32)
+        s = new Surface(32, 32)
+        sp.image = s
+        sp.x = 308
+        sp.y = 224
+        game.rootScene.addChild sp
 
+        oldTime = new Date()
+        text = new Label()
+        game.rootScene.addChild text
+
+        lastTime = new Date()
+
+        game.addEventListener "enterframe", ->
+
+          #datas = []
+          #for count in [0...1024]
+          #  s.setPixel(count % 32, count / 32, col[0], col[1], col[2], 255)
+          op = sp.opacity - 0.005
+          if op < 0
+            op = 1
+          sp.opacity = op
+          s.clear()
+          context = s.context
+          context.drawImage(game.assets[img[0]]._element, 0, 0)
+          iData = context.getImageData(0, 0, 32, 32)
+          srcData = iData.data
+          imageData = context.createImageData(32, 32)
+          data = imageData.data
+          for i in [0...1024]
+            data[i * 4 + 0] = srcData[i * 4 + 0]
+            data[i * 4 + 1] = srcData[i * 4 + 1] * sp.opacity / 2 + 128
+            if data[i * 4 + 1] > 255
+              data[i * 4 + 1] = 255
+            data[i * 4 + 2] = srcData[i * 4 + 2] * sp.opacity
+            data[i * 4 + 3] = srcData[i * 4 + 3]
+
+          context.putImageData(imageData, 0, 0)
+
+          newTime = new Date()
+          fps = 1000 / ( newTime.getTime() - oldTime.getTime() )
+          if newTime.getTime() - lastTime.getTime() > 1000
+            text.text = fps.toFixed(2) + " FPS"
+            lastTime = newTime
+          oldTime = newTime
+          return
+        return
+      game.start()
